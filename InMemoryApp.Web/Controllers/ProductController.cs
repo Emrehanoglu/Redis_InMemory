@@ -14,6 +14,15 @@ namespace InMemoryApp.Web.Controllers
 
         public IActionResult Index()
         {
+            //hafızaya kaydettim
+            _memoryCache.Set<string>("zaman",DateTime.Now.ToString());
+
+            return View();
+        }
+        public IActionResult Show()
+        {
+            //hafızadan okudum
+            ViewBag.zaman = _memoryCache.Get<string>("zaman");
             return View();
         }
     }
