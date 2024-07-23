@@ -15,14 +15,24 @@ namespace InMemoryApp.Web.Controllers
         public IActionResult Index()
         {
             //hafızaya kaydettim
-            _memoryCache.Set<string>("zaman",DateTime.Now.ToString());
+            MemoryCacheEntryOptions options = new MemoryCacheEntryOptions();
+
+            //1 dakikalık bir süre verildi
+            options.AbsoluteExpiration = DateTime.Now.AddMinutes(1);
+
+            //10 saniyelik bir süre verildi
+            options.SlidingExpiration = TimeSpan.FromSeconds(10);
+
+            _memoryCache.Set<string>("zaman",DateTime.Now.ToString(), options);
 
             return View();
         }
         public IActionResult Show()
         {
             //hafızadan okudum
-            ViewBag.zaman = _memoryCache.Get<string>("zaman");
+            _memoryCache.TryGetValue("zaman", out string zamancache);
+
+            ViewBag.zaman = zamancache;
             return View();
         }
     }
