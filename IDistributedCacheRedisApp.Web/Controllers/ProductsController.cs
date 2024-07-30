@@ -37,4 +37,20 @@ public class ProductsController : Controller
 
         return View();
     }
+    public IActionResult ImageCache()
+    {
+        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/download.jpg");
+
+        Byte[] byteImage = System.IO.File.ReadAllBytes(path);
+
+        _distributedCache.Set("resim",byteImage);
+
+        return View();
+    }
+    public IActionResult ImageUrl()
+    {
+        Byte[] byteImage = _distributedCache.Get("resim");
+
+        return File(byteImage, "image/jpg");
+    }
 }
