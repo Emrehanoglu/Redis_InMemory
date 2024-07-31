@@ -4,30 +4,18 @@ namespace RedisExchangeApi.Web.Services
 {
     public class RedisService
     {
-        private readonly string _redisHost;
-        private readonly string _redisPort;
-        private ConnectionMultiplexer _redis;
-        public IDatabase db { get; set; }
-        public RedisService(IConfiguration configuration)
-        {
-            _redisHost = configuration["Redis:Host"];
-            _redisPort = configuration["Redis:Port"];
-        }
+        public string _host { get; set; }
+        public int _port { get; set; }
+        private ConnectionMultiplexer _connectionMultiplexer;
 
-        //db baglantısı yapıldı
-        //uygulama ayaga kalktıgında direkt olarak db ile haberleşecek
-        public void Connect()
+        public RedisService(string host, int port)
         {
-            var configString = $"{_redisHost}:{_redisPort}";
-
-            _redis = ConnectionMultiplexer.Connect(configString);
+            _host = host;
+            _port = port;
         }
+        
+        public void Connect() => _connectionMultiplexer = ConnectionMultiplexer.Connect($"{_host}:{_port}");
 
-        //16 tane db vardı, hangi db 'ye baglansın
-        //belirtmediğim için ilk db 'ye yazmaya baslar
-        public IDatabase GetDb(int db)
-        {
-            return _redis.GetDatabase(db);
-        }
+        public IDatabase GetDb(int db = 1) => _connectionMultiplexer.GetDatabase(0);
     }
 }
