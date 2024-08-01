@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using RedisExampleApp.Api.Models;
 using RedisExampleApp.Api.Repositories;
+using RedisExampleApp.Cache;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,18 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseInMemoryDatabase("myDatabase");
+});
+
+builder.Services.AddSingleton<RedisService>(sp =>
+{
+    return new RedisService(builder.Configuration["CacheOptions:Url"]);
+});
+
+//uygulama ayaga kalkarken Redis 'in 0. indexindeki db ile çalýsýlacagý belirtildi.
+builder.Services.AddSingleton<IDatabase>(sp =>
+{
+    var redisService = sp.GetRequiredService<RedisService>();
+    return redisService.GetDb(0);
 });
 
 var app = builder.Build();
