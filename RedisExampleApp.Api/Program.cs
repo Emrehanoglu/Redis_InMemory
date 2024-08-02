@@ -13,7 +13,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductRepository>(sp =>
+{
+    var appDbcontext = sp.GetRequiredService<AppDbContext>();
+    var productRepository = new ProductRepository(appDbcontext);
+    var redisService = sp.GetRequiredService<RedisService>();
+
+    return new ProductRepositoryWithCacheDecorator(productRepository, redisService);
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
